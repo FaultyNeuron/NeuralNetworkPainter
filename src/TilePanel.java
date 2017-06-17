@@ -40,7 +40,7 @@ public class TilePanel extends JPanel{
     }
 
     public void save() throws IOException {
-        BufferedImage bufferedImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+        BufferedImage bufferedImage = new BufferedImage(tile.getWidth(), tile.getHeight(), BufferedImage.TYPE_INT_ARGB);
         paint(bufferedImage.createGraphics());
         Util.savePng(bufferedImage, "picture");
     }

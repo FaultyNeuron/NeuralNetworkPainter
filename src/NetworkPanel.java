@@ -26,47 +26,35 @@ public class NetworkPanel extends JPanel {
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
         add(buttonPanel);
         Button saveTileButton = new Button("Save Tile");
-        saveTileButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    tilePanel.getTile().save();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
+        saveTileButton.addActionListener(e -> {
+            try {
+                tilePanel.getTile().save();
+            } catch (IOException e1) {
+                e1.printStackTrace();
             }
         });
         Button savePictureButton = new Button("Save Picture");
-        savePictureButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    tilePanel.save();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
+        savePictureButton.addActionListener(e -> {
+            try {
+                tilePanel.save();
+            } catch (IOException e1) {
+                e1.printStackTrace();
             }
         });
         Button settingsButton = new Button("Settings");
-        settingsButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                settingsFrame = new JFrame("Settings");
-                settingsFrame.add(settingsPanel);
-                settingsButton.setEnabled(false);
-                settingsFrame.setVisible(true);
-                settingsFrame.pack();
-                settingsFrame.addWindowListener(new WindowAdapter() {
-                    public void windowClosing(WindowEvent e) {
-                        System.out.println("closing settings..");
-                        settingsButton.setEnabled(true);
-//                        if(settingsPanel.hasChanged()){
-//                            settingsPanel.saveSettings();
-//                        }
-                    }
-                });
-                settingsFrame.setLocationRelativeTo(NetworkPanel.this);
-            }
+        settingsButton.addActionListener(e -> {
+            settingsFrame = new JFrame("Settings");
+            settingsFrame.add(settingsPanel);
+            settingsButton.setEnabled(false);
+            settingsFrame.setVisible(true);
+            settingsFrame.pack();
+            settingsFrame.addWindowListener(new WindowAdapter() {
+                public void windowClosing(WindowEvent e) {
+                    System.out.println("closing settings..");
+                    settingsButton.setEnabled(true);
+                }
+            });
+            settingsFrame.setLocationRelativeTo(NetworkPanel.this);
         });
         buttonPanel.add(saveTileButton);
         buttonPanel.add(savePictureButton);
@@ -74,9 +62,4 @@ public class NetworkPanel extends JPanel {
 
         settingsPanel = new SettingsPanel(tilePanel);
     }
-
-//    public void reload(){
-////        tileFactory.setSeed(new Random().nextLong());
-//        tilePanel.setTile(tileFactory.create());
-//    }
 }

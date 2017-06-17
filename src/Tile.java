@@ -74,18 +74,12 @@ public class Tile {
                     avoidTouchAttempts++;
                     continue OUTER;
                 }
-//                allNeurons.add(new CopiedNeuron(newNeuron, p.x, p.y));
             }
             neuronsOnStage.add(newNeuron);
             allNeurons.addAll(copiedNeurons);
             allNeurons.add(newNeuron);
             avoidTouchAttempts = 0;
         }
-//        for (Point p : Util.eightNeighbor()) {
-//            for (StageNeuron neuron : neuronsOnStage) {
-//                allNeurons.add(new CopiedNeuron(neuron, p.x, p.y));
-//            }
-//        }
         List<StageNeuron> neuronsBySize = new ArrayList<>(neuronsOnStage);
         Collections.sort(neuronsBySize, (o1, o2) -> (int) ((o1.getSize()-o2.getSize())*100));
         for (StageNeuron neuron : neuronsBySize) {

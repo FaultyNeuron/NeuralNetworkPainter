@@ -156,16 +156,6 @@ public class SettingsPanel extends JPanel {
 
     private void update(){
         changed = true;
-//        tileFactory.setWidth(tileWidthModel.getNumber().intValue());
-//        tileFactory.setHeight(tileHeightModel.getNumber().intValue());
-//        tileFactory.setNeuronCount(neuronCountModel.getNumber().intValue());
-//        tileFactory.setSeed(seedModel.getNumber().longValue());
-//        tileFactory.setDrawBorder(drawBoxCheckBox.isSelected());
-//        tileFactory.setAvoidTouching(avoidTouchingCheckBox.isSelected());
-//        tileFactory.setMinConnections(minConnectionsModel.getNumber().intValue());
-//        tileFactory.setMaxConnections(maxConnectionsModel.getNumber().intValue());
-//        tileFactory.setLineAlgorithm(lineAlgorithmDropDown.getItemAt(lineAlgorithmDropDown.getSelectedIndex()));
-//        tileFactory.setStraightness(straightnessSlider.getValue()/((float)MAX_SLIDER_VALUE));
         try {
             tilePanel.setTile(tileFactory.create());
         } catch (TileProperties.IllegalTypeException e) {
@@ -174,18 +164,12 @@ public class SettingsPanel extends JPanel {
         saveSettings();
     }
 
-//    private void setTileWidth(int tileWidth) {
-//        tileFactory.setWidth(tileWidth);
-//        tileProperties.put(TileProperties.TILE_WIDTH_KEY, tileWidth);
-//    }
 
     public void saveSettings(){
         System.out.println("saving..");
         try {
             tileProperties.storeTo(new File(CONFIG_PROPERTIES_FILE_NAME));
             changed = false;
-//            FileOutputStream out = new FileOutputStream();
-//            tileProperties.put(out, );
         } catch (IOException e) {
             e.printStackTrace();
         }
