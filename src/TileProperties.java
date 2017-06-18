@@ -35,6 +35,7 @@ public class TileProperties {
     public static final String BACKGROUND_BLUE_KEY = "background.blue";
     public static final String BACKGROUND_DRAW_KEY = "background.draw";
     public static final String TILING_ACTIVE_KEY = "tiling.active";
+    public static final String ANTI_ALIASING_KEY = "antialiasing";
     public static final String SEED_KEY = "seed";
     public static final String STRAIGHTNESS_KEY = "straightness";
     public static final String DRAW_BORDER_KEY = "tile.border.draw";
@@ -66,6 +67,7 @@ public class TileProperties {
         putObject(BACKGROUND_GREEN_KEY, 0);
         putObject(BACKGROUND_BLUE_KEY, 8);
         putObject(TILING_ACTIVE_KEY, true);
+        putObject(ANTI_ALIASING_KEY, true);
     }
 
     public void putObject(String key, Object value) {

@@ -31,7 +31,8 @@ public class TileFactory {
                 tileProperties.getInt(TileProperties.NEURON_MIN_PIXEL_KEY),
                 tileProperties.getInt(TileProperties.NEURON_MAX_PIXEL_KEY),
                 backgroundColour,
-                tileProperties.getBoolean(TileProperties.TILING_ACTIVE_KEY)
+                tileProperties.getBoolean(TileProperties.TILING_ACTIVE_KEY),
+                tileProperties.getBoolean(TileProperties.ANTI_ALIASING_KEY)
         );
     }
 

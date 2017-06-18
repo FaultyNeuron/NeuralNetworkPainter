@@ -41,13 +41,12 @@ public class SettingsPanel extends JPanel {
             LayoutManager boxLayout = new GridLayout(0, 1);//new BoxLayout(this, BoxLayout.Y_AXIS);
             setLayout(boxLayout);
 
-            addSpinners("Tile dimensions:", TileProperties.TILE_WIDTH_KEY, TileProperties.TILE_HEIGHT_KEY);
-            addSpinner("Neuron count:", TileProperties.NEURON_COUNT_KEY);
-            addSpinner("Seed:", TileProperties.SEED_KEY);
-            addSpinners("Min/Max connections:", TileProperties.NEURON_CONNECTIONS_MIN_KEY, TileProperties.NEURON_CONNECTIONS_MAX_KEY);
-            addSpinners("Min/Max neuron size:", TileProperties.NEURON_MIN_PIXEL_KEY, TileProperties.NEURON_MAX_PIXEL_KEY);
-            addCheckbox("Paint background", TileProperties.BACKGROUND_DRAW_KEY);
-            addSpinners("Background Colour:",TileProperties.BACKGROUND_RED_KEY,
+            addSpinners("Tile dimensions", TileProperties.TILE_WIDTH_KEY, TileProperties.TILE_HEIGHT_KEY);
+            addSpinner("Neuron count", TileProperties.NEURON_COUNT_KEY);
+            addSpinner("Seed", TileProperties.SEED_KEY);
+            addSpinners("Min/Max connections", TileProperties.NEURON_CONNECTIONS_MIN_KEY, TileProperties.NEURON_CONNECTIONS_MAX_KEY);
+            addSpinners("Min/Max neuron size", TileProperties.NEURON_MIN_PIXEL_KEY, TileProperties.NEURON_MAX_PIXEL_KEY);
+            addSpinners("Background Colour",TileProperties.BACKGROUND_RED_KEY,
                     TileProperties.BACKGROUND_GREEN_KEY, TileProperties.BACKGROUND_BLUE_KEY);
 //            addSpinner("Max neuron size:", TileProperties.NEURON_MAX_PIXEL_KEY);
 
@@ -70,9 +69,11 @@ public class SettingsPanel extends JPanel {
             });
             add(straightnessSlider);
 
+            addCheckbox("Paint background", TileProperties.BACKGROUND_DRAW_KEY);
             addCheckbox("Draw tile border", TileProperties.DRAW_BORDER_KEY);
             addCheckbox("Try to avoid touching neurons", TileProperties.NEURON_COLLISION_AVOID_KEY);
             addCheckbox("Create connected tiles", TileProperties.TILING_ACTIVE_KEY);
+            addCheckbox("Use antialiasing", TileProperties.ANTI_ALIASING_KEY);
 
             tilePanel.setTile(tileFactory.create());
         } catch (TileProperties.IllegalTypeException e){
@@ -92,7 +93,7 @@ public class SettingsPanel extends JPanel {
     }
 
     private void addSpinners(String label, String... keys) throws TileProperties.IllegalTypeException {
-        add(new JLabel(label));
+        add(new JLabel(label+":"));
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         add(panel);
         for (String key : keys) {
@@ -104,8 +105,13 @@ public class SettingsPanel extends JPanel {
     }
 
     private void addSpinner(String label, String key) throws TileProperties.IllegalTypeException {
-        add(new JLabel(label));
-        add(createSpinner(key));
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        add(panel);
+        panel.add(new JLabel(label+": "));
+        JSpinner spinner = createSpinner(key);
+        Dimension preferredSize = spinner.getPreferredSize();
+        spinner.setPreferredSize(new Dimension(50, preferredSize.height));
+        panel.add(spinner);
     }
 
     private JSpinner createSpinner(String key) throws TileProperties.IllegalTypeException {

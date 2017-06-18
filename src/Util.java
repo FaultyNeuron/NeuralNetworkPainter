@@ -36,6 +36,22 @@ public class Util {
         return new Point(a.x + b.x, a.y + b.y);
     }
 
+    public static Point multiply(Point a, Point b) {
+        return new Point((int)Math.round(a.x * b.x), (int)Math.round(a.y * b.y));
+    }
+
+    public static Point multiply(Point a, double val) {
+        return new Point((int)Math.round(a.x * val), (int)Math.round(a.y * val));
+    }
+
+    public static Point abs(Point point) {
+        return new Point(Math.abs(point.x), Math.abs(point.y));
+    }
+
+    public static int min(Point point) {
+        return Math.min(point.x, point.y);
+    }
+
     public static Point add(Point a, int dx, int dy) {
         return new Point(a.x + dx, a.y + dy);
     }

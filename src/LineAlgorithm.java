@@ -1,5 +1,4 @@
 import java.awt.*;
-import java.awt.geom.Point2D;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -14,8 +13,10 @@ public interface LineAlgorithm{
     Object toKey();
 
     interface Line extends Iterable<Point>{
-        @Override
-        LineIterator iterator();
+        default LineAlgorithm.Line.LineIterator iterator() {
+            return new EdgeToLineIterator(edgeIterator());
+        }
+        Iterator<Point> edgeIterator();
         interface LineIterator extends Iterator<Point>{
             void setCursor(Point cursor);
         }
