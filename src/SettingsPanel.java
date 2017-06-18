@@ -8,17 +8,10 @@ import java.io.IOException;
  */
 public class SettingsPanel extends JPanel {
     public static final int MAX_SLIDER_VALUE = 500;
-    public static final int SIZE_INCREMENT = 50;
     public static final String CONFIG_PROPERTIES_FILE_NAME = "config.properties";
 
     private TileFactory tileFactory;
     private TilePanel tilePanel;
-    private SpinnerNumberModel tileWidthModel;
-    private SpinnerNumberModel tileHeightModel;
-    private SpinnerNumberModel neuronCountModel;
-    private SpinnerNumberModel seedModel;
-    private SpinnerNumberModel minConnectionsModel;
-    private SpinnerNumberModel maxConnectionsModel;
     private JComboBox<String> lineAlgorithmDropDown = new JComboBox<>(new String[]{
             ParisBlockAlgorithm.PARIS_CITY_BLOCK_ALGORITHM_NAME,
             CityBlockAlgorithm.CITY_BLOCK_ALGORITHM_NAME,
@@ -27,15 +20,11 @@ public class SettingsPanel extends JPanel {
             ParisBlockAlgorithm.PARIS_CITY_BLOCK_ALGORITHM_KEY,
             CityBlockAlgorithm.CITY_BLOCK_ALGORITHM_KEY,
             BresenhamAlgorithm.BRESENHAM_ALGORITHM_KEY};
-//    private ChaoticLineAlgorithm chaoticLineAlgorithm = new ChaoticLineAlgorithm(0.5f);
-//    private JLabel straightnessSliderLabel;
     private JSlider straightnessSlider;
     private JCheckBox drawBoxCheckBox;
     private JCheckBox avoidTouchingCheckBox;
     private TileProperties tileProperties;
     private boolean changed = false;
-
-//    private SpinnerListModel drawBoxModel;
 
     public SettingsPanel(TilePanel tilePanel) {
         try {
@@ -52,101 +41,38 @@ public class SettingsPanel extends JPanel {
             LayoutManager boxLayout = new GridLayout(0, 1);//new BoxLayout(this, BoxLayout.Y_AXIS);
             setLayout(boxLayout);
 
-            add(new JLabel("Tile width:"));
-            tileWidthModel = new SpinnerNumberModel(
-                    tileProperties.getInt(TileProperties.TILE_WIDTH_KEY), SIZE_INCREMENT, Integer.MAX_VALUE, SIZE_INCREMENT);
-            JSpinner widthSpinner = new JSpinner(tileWidthModel);
-            widthSpinner.addChangeListener(e -> {
-                tileProperties.putObject(TileProperties.TILE_WIDTH_KEY, tileWidthModel.getValue());
-                update();
-            });
-            add(widthSpinner);
-
-            add(new JLabel("Tile height:"));
-            tileHeightModel = new SpinnerNumberModel(
-                    tileProperties.getInt(TileProperties.TILE_HEIGHT_KEY), SIZE_INCREMENT, Integer.MAX_VALUE, SIZE_INCREMENT);
-            JSpinner heightSpinner = new JSpinner(tileHeightModel);
-            heightSpinner.addChangeListener(e -> {
-                tileProperties.putObject(TileProperties.TILE_HEIGHT_KEY, tileHeightModel.getValue());
-                update();
-            });
-            add(heightSpinner);
-
-            add(new JLabel("Neuron count:"));
-            neuronCountModel = new SpinnerNumberModel(
-                    tileProperties.getInt(TileProperties.NEURON_COUNT_KEY), 0, Integer.MAX_VALUE, 1);
-            JSpinner neuronCountSpinner = new JSpinner(neuronCountModel);
-            neuronCountSpinner.addChangeListener(e -> {
-                tileProperties.putObject(TileProperties.NEURON_COUNT_KEY, neuronCountModel.getValue());
-                update();
-            });
-            add(neuronCountSpinner);
-
-            add(new JLabel("Seed:"));
-            seedModel = new SpinnerNumberModel(tileProperties.getInt(TileProperties.SEED_KEY), Long.MIN_VALUE, Long.MAX_VALUE, 1);
-            JSpinner seedSpinner = new JSpinner(seedModel);
-            seedModel.addChangeListener(e -> {
-                tileProperties.putObject(TileProperties.SEED_KEY, seedModel.getValue());
-                update();
-            });
-            add(seedSpinner);
-
-            add(new JLabel("Min connections:"));
-            minConnectionsModel = new SpinnerNumberModel(
-                    tileProperties.getInt(TileProperties.NEURON_CONNECTIONS_MIN_KEY), 0, Integer.MAX_VALUE, 1);
-            JSpinner minConnectionSpinner = new JSpinner(minConnectionsModel);
-            minConnectionsModel.addChangeListener(e -> {
-                tileProperties.putObject(TileProperties.NEURON_CONNECTIONS_MIN_KEY, minConnectionsModel.getValue());
-                update();
-            });
-            add(minConnectionSpinner);
-
-            add(new JLabel("Max connections:"));
-            maxConnectionsModel = new SpinnerNumberModel(
-                    tileProperties.getInt(TileProperties.NEURON_CONNECTIONS_MAX_KEY), 0, Integer.MAX_VALUE, 1);
-            JSpinner maxConnectionSpinner = new JSpinner(maxConnectionsModel);
-            maxConnectionsModel.addChangeListener(e -> {
-                tileProperties.putObject(TileProperties.NEURON_CONNECTIONS_MAX_KEY, maxConnectionsModel.getValue());
-                update();
-            });
-            add(maxConnectionSpinner);
+            addSpinners("Tile dimensions:", TileProperties.TILE_WIDTH_KEY, TileProperties.TILE_HEIGHT_KEY);
+            addSpinner("Neuron count:", TileProperties.NEURON_COUNT_KEY);
+            addSpinner("Seed:", TileProperties.SEED_KEY);
+            addSpinners("Min/Max connections:", TileProperties.NEURON_CONNECTIONS_MIN_KEY, TileProperties.NEURON_CONNECTIONS_MAX_KEY);
+            addSpinners("Min/Max neuron size:", TileProperties.NEURON_MIN_PIXEL_KEY, TileProperties.NEURON_MAX_PIXEL_KEY);
+            addCheckbox("Paint background", TileProperties.BACKGROUND_DRAW_KEY);
+            addSpinners("Background Colour:",TileProperties.BACKGROUND_RED_KEY,
+                    TileProperties.BACKGROUND_GREEN_KEY, TileProperties.BACKGROUND_BLUE_KEY);
+//            addSpinner("Max neuron size:", TileProperties.NEURON_MAX_PIXEL_KEY);
 
             add(new JLabel("Line algorithm:"));
-//            lineAlgorithmDropDown = new JComboBox<>(new LineAlgorithm[]{
-//                    new ParisBlockAlgorithm(), new CityBlockAlgorithm(), new BresenhamAlgorithm()});
             lineAlgorithmDropDown.addActionListener(e -> {
                 tileProperties.putObject(TileProperties.NEURON_CONNECTIONS_DRAWING_ALGORITHM_KEY,
                         lineAlgorithmKeys[lineAlgorithmDropDown.getSelectedIndex()]);
-                update();
+                valueChanged();
             });
             add(lineAlgorithmDropDown);
 
             add(new JLabel("Straightness:"));
             straightnessSlider = new JSlider(1, MAX_SLIDER_VALUE, (int) (MAX_SLIDER_VALUE * TileProperties.DEFAULT_STRAIGHTNESS));
             straightnessSlider.addChangeListener(e -> {
-                tileProperties.putObject(TileProperties.STRAIGHTNESS_KEY,
-                        straightnessSlider.getValue() / ((float) MAX_SLIDER_VALUE));
-                update();
+                if (!straightnessSlider.getValueIsAdjusting()) {
+                    tileProperties.putObject(TileProperties.STRAIGHTNESS_KEY,
+                            straightnessSlider.getValue() / ((float) MAX_SLIDER_VALUE));
+                    valueChanged();
+                }
             });
             add(straightnessSlider);
 
-            add(new JLabel("Draw tile border:"));
-            drawBoxCheckBox = new JCheckBox();
-            drawBoxCheckBox.setSelected(tileProperties.getBoolean(TileProperties.DRAW_BORDER_KEY));
-            drawBoxCheckBox.addChangeListener(e -> {
-                tileProperties.putObject(TileProperties.DRAW_BORDER_KEY, drawBoxCheckBox.isSelected());
-                update();
-            });
-            add(drawBoxCheckBox);
-
-            add(new JLabel("Try to avoid touching neurons:"));
-            avoidTouchingCheckBox = new JCheckBox();
-            avoidTouchingCheckBox.setSelected(tileProperties.getBoolean(TileProperties.NEURON_COLLISION_AVOID_KEY));
-            avoidTouchingCheckBox.addChangeListener(e -> {
-                tileProperties.putObject(TileProperties.NEURON_COLLISION_AVOID_KEY, avoidTouchingCheckBox.isSelected());
-                update();
-            });
-            add(avoidTouchingCheckBox);
+            addCheckbox("Draw tile border", TileProperties.DRAW_BORDER_KEY);
+            addCheckbox("Try to avoid touching neurons", TileProperties.NEURON_COLLISION_AVOID_KEY);
+            addCheckbox("Create connected tiles", TileProperties.TILING_ACTIVE_KEY);
 
             tilePanel.setTile(tileFactory.create());
         } catch (TileProperties.IllegalTypeException e){
@@ -154,7 +80,45 @@ public class SettingsPanel extends JPanel {
         }
     }
 
-    private void update(){
+    private void addCheckbox(String label, String key) throws TileProperties.IllegalTypeException {
+//        add(new JLabel(label));
+        JCheckBox checkBox = new JCheckBox(label);
+        checkBox.setSelected(tileProperties.getBoolean(key));
+        checkBox.addItemListener(l -> {
+            tileProperties.putObject(key, checkBox.isSelected());
+            valueChanged();
+        });
+        add(checkBox);
+    }
+
+    private void addSpinners(String label, String... keys) throws TileProperties.IllegalTypeException {
+        add(new JLabel(label));
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        add(panel);
+        for (String key : keys) {
+            JSpinner spinner = createSpinner(key);
+            Dimension preferredSize = spinner.getPreferredSize();
+            spinner.setPreferredSize(new Dimension(preferredSize.width / keys.length, preferredSize.height));
+            panel.add(spinner);
+        }
+    }
+
+    private void addSpinner(String label, String key) throws TileProperties.IllegalTypeException {
+        add(new JLabel(label));
+        add(createSpinner(key));
+    }
+
+    private JSpinner createSpinner(String key) throws TileProperties.IllegalTypeException {
+        SpinnerNumberModel model = new SpinnerNumberModel(tileProperties.getInt(key), 0, Integer.MAX_VALUE, 1);
+        JSpinner spinner = new JSpinner(model);
+        model.addChangeListener(e -> {
+            tileProperties.putObject(key, model.getValue());
+            valueChanged();
+        });
+        return spinner;
+    }
+
+    private void valueChanged(){
         changed = true;
         try {
             tilePanel.setTile(tileFactory.create());

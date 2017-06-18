@@ -8,14 +8,11 @@ import java.util.List;
  * Created by Georg Plaz.
  */
 public class Tile {
-    public static final int MAX_PIXEL_SIZE = 20;
-    public static final int MIN_PIXEL_SIZE = 6;
     private int width;
     private int height;
     private final boolean drawBorder;
     private List<StageNeuron> neuronsOnStage;
     private List<Neuron> allNeurons;
-    //    private boolean[][] gridPaint;
     private BufferedImage canvas;
     private Graphics2D canvasGraphics;
     private int minConnections;
@@ -24,12 +21,15 @@ public class Tile {
     private Random random;
     private float straightness;
     private boolean avoidTouching;
-    private static final int MAX_AVOID_TOUCH_ATTEMPTS = 20;
+    private int minPixelSize;
+    private int maxPixelSize;
+    private static final int MAX_AVOID_TOUCH_ATTEMPTS = 100;
 
 
     public Tile(int width, int height, int neuronCount, long seed, boolean drawBorder,
                 int minConnections, int maxConnections, LineAlgorithm lineAlgorithm,
-                float straightness, boolean avoidTouching) {
+                float straightness, boolean avoidTouching, int minPixelSize, int maxPixelSize,
+                Color backgroundColour, boolean tilingActive) {
         this.width = width;
         this.height = height;
         this.drawBorder = drawBorder;
@@ -38,54 +38,43 @@ public class Tile {
         this.lineAlgorithm = lineAlgorithm;
         this.straightness = straightness;
         this.avoidTouching = avoidTouching;
+        this.minPixelSize = minPixelSize;
+        this.maxPixelSize = maxPixelSize;
         neuronsOnStage = new LinkedList<>();
         allNeurons = new LinkedList<>();
         canvas = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
         canvasGraphics = canvas.createGraphics();
         canvasGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,   RenderingHints.VALUE_ANTIALIAS_ON);
-        canvasGraphics.setColor(new Color(8, 0, 8));
-        canvasGraphics.fillRect(0, 0, width, height);
+        if (backgroundColour != null) {
+            canvasGraphics.setColor(backgroundColour);
+            canvasGraphics.fillRect(0, 0, width, height);
+        }
         if(drawBorder) {
             canvasGraphics.setColor(Color.GRAY);
             canvasGraphics.drawRect(0, 0, width, height);
         }
         random = new Random(seed);
-        int avoidTouchAttempts = 0;
-        OUTER:
+        Random randoms[] = new Random[neuronCount];
         for (int i = 0; i < neuronCount; i++) {
-            int x = getRandomInteger(random, 0, width);
-            int y = getRandomInteger(random, 0, height);
-            double size = getRandomDoubleUnevenDistributed(random);
-            Color neuronColor = new Color(random.nextFloat(), random.nextFloat(), random.nextFloat());
-            StageNeuron newNeuron = new StageNeuron(x, y, size, neuronColor);
+            randoms[i] = new Random(random.nextLong());
+        }
+        for (int i = 0; i < neuronCount; i++) {
+            StageNeuron newNeuron = createNeuron(randoms[i], avoidTouching, tilingActive);
+            if (newNeuron == null) {
+                System.out.println("skipped a neuron..");
+                break;
+            }
 
-            if(avoidTouching && intersectsAny(newNeuron) && avoidTouchAttempts < MAX_AVOID_TOUCH_ATTEMPTS){
-                i--;
-                avoidTouchAttempts++;
-                continue;
-            }
-            List<CopiedNeuron> copiedNeurons = new LinkedList<>();
-            for (Point p : Util.eightNeighbor()) {
-                CopiedNeuron copiedNeuron = new CopiedNeuron(newNeuron, p.x, p.y);
-                copiedNeurons.add(copiedNeuron);
-                if(avoidTouching && intersectsAny(copiedNeuron) && avoidTouchAttempts < MAX_AVOID_TOUCH_ATTEMPTS){
-                    i--;
-                    avoidTouchAttempts++;
-                    continue OUTER;
-                }
-            }
             neuronsOnStage.add(newNeuron);
-            allNeurons.addAll(copiedNeurons);
             allNeurons.add(newNeuron);
-            avoidTouchAttempts = 0;
+            allNeurons.addAll(newNeuron.copies);
         }
         List<StageNeuron> neuronsBySize = new ArrayList<>(neuronsOnStage);
         Collections.sort(neuronsBySize, (o1, o2) -> (int) ((o1.getSize()-o2.getSize())*100));
         for (StageNeuron neuron : neuronsBySize) {
             int neuronLinkCount = neuron.getTargetLinkCount();
             Iterator<Neuron> neighborIterator = neuron.neighborsSorted().iterator();
-
             while(neighborIterator.hasNext() && neuron.getTotalLinkCount()<neuronLinkCount){
                 Neuron neighbor = neighborIterator.next();
                 int neighborLinkCount = neighbor.getTargetLinkCount();
@@ -99,6 +88,37 @@ public class Tile {
         for(Neuron neuron : allNeurons){
             neuron.paint();
         }
+    }
+
+    private boolean anyIntersectsAny(Collection<? extends Neuron> neurons) {
+        for (Neuron neuron : neurons) {
+            if (intersectsAny(neuron)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public StageNeuron createNeuron(Random random, boolean avoidTouching, boolean tilingActive) {
+        double size = getRandomDoubleUnevenDistributed(random);
+        Color neuronColor = new Color(random.nextFloat(), random.nextFloat(), random.nextFloat());
+        int offset = 0;
+        if (!tilingActive) {
+            offset = toPixelSize(size, minPixelSize, maxPixelSize);
+        }
+        System.out.println(offset);
+        for (int j = 0; j < MAX_AVOID_TOUCH_ATTEMPTS; j++) {
+            int x = getRandomInteger(random, offset/2, width - offset);
+            int y = getRandomInteger(random, offset/2, height - offset);
+            System.out.println(x + ", " + y);
+            StageNeuron newNeuron = new StageNeuron(x, y, size, neuronColor, tilingActive);
+            Collection<Neuron> neuronPlusCopies = new HashSet<>(newNeuron.copies);
+            neuronPlusCopies.add(newNeuron);
+            if (!avoidTouching || !intersectsAny(newNeuron)) {
+                return newNeuron;
+            }
+        }
+        return null;
     }
 
     public boolean intersectsAny(Neuron neuron){
@@ -126,16 +146,17 @@ public class Tile {
         Util.savePng(canvas, "tile");
     }
 
+    private static int toPixelSize(double size, int minPixel, int maxPixel) {
+        return (int) Math.round(size * (maxPixel - minPixel) + minPixel);
+    }
+
     private abstract class Neuron {
         private int x;
         private int y;
-//        private double size;
-//        private List<Neuron> childNeurons = new LinkedList<>();
 
         private Neuron(int x, int y) {
             this.x = x;
             this.y = y;
-//            this.size = size;
         }
 
         void paint(){
@@ -154,7 +175,7 @@ public class Tile {
         public abstract double getSize();
 
         public int getPixelSize(){
-            return (int) (getSize()* MAX_PIXEL_SIZE + MIN_PIXEL_SIZE);
+            return toPixelSize(getSize(), minPixelSize, maxPixelSize);
         }
 
         public List<Neuron> neighborsSorted() {
@@ -219,10 +240,15 @@ public class Tile {
         private Set<Neuron> linkedNeurons = new HashSet<>();
         private Color neuronColor;
 
-        private StageNeuron(int x, int y, double size, Color neuronColor) {
+        private StageNeuron(int x, int y, double size, Color neuronColor, boolean tilingActive) {
             super(x, y);
             this.size = size;
             this.neuronColor = neuronColor;
+            if (tilingActive) {
+                for (Point p : Util.eightNeighbor()) {
+                    new CopiedNeuron(this, p.x, p.y);
+                }
+            }
         }
 
         @Override
@@ -257,13 +283,8 @@ public class Tile {
                     lineIterator.setCursor(cursor);
                 }
                 double colourWeight = Util.clip(Util.distance(cursor, target)/totalDistance, 0, 1);
-//                double neuronDistance = Util.distance(getPosition(), cursor);
-//                double neuronThicknessFactor = Math.pow(1-neuronDistance/(totalDistance), 10);
-//                double neighborThicknessFactor = 0;//Math.pow(neuronDistance/(neighbor.getPixelSize()*4), 10);
-//                int thickness = (int)Math.max(1, getPixelSize()*neuronThicknessFactor + neighbor.getPixelSize()*neighborThicknessFactor);
-//                int thickness = getThickness(this, cursor);
 
-                Tile.this.paint(cursor, 1, Util.interpolate(getNeuronColor(), neighbor.getNeuronColor(), colourWeight));
+                Tile.this.paintPixel(cursor, 1, Util.interpolate(getNeuronColor(), neighbor.getNeuronColor(), colourWeight));
             }
             linkedNeurons.add(neighbor);
             neighbor.receiveLink(this);
@@ -292,11 +313,11 @@ public class Tile {
         }
     }
 
-    private void paint(Point from, Point to, Color color) {
+    private void paintLine(Point from, Point to, Color color) {
         canvasGraphics.drawLine(from.x, from.y, to.x, to.y);
     }
 
-    private void paint(Point point, int thickness, Color color) {
+    private void paintPixel(Point point, int thickness, Color color) {
         Point center = toGrid(point);
         if(thickness==1) {
             canvas.setRGB(center.x, center.y, color.getRGB());

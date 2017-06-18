@@ -1,3 +1,5 @@
+import javafx.util.Pair;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -14,6 +16,9 @@ public class TileProperties {
     public static final int DEFAULT_MIN_CONNECTIONS = 1;
     public static final int DEFAULT_MAX_CONNECTIONS = 8;
     public static final double DEFAULT_STRAIGHTNESS = 1;
+    public static final int DEFAULT_SEED = 42;
+    public static final int DEFAULT_MIN_PIXEL = 8;
+    public static final int DEFAULT_MAX_PIXEL = 20;
     private Properties properties;
     public static final String NEURON_COUNT_KEY = "neuron.count";
 
@@ -23,6 +28,13 @@ public class TileProperties {
     public static final String NEURON_CONNECTIONS_MAX_KEY = "neuron.connections.max";
     public static final String NEURON_CONNECTIONS_DRAWING_ALGORITHM_KEY = "neuron.connections.drawing";
     public static final String NEURON_COLLISION_AVOID_KEY = "neuron.collision.avoid";
+    public static final String NEURON_MIN_PIXEL_KEY = "neuron.size.min";
+    public static final String NEURON_MAX_PIXEL_KEY = "neuron.size.max";
+    public static final String BACKGROUND_RED_KEY = "background.red";
+    public static final String BACKGROUND_GREEN_KEY = "background.green";
+    public static final String BACKGROUND_BLUE_KEY = "background.blue";
+    public static final String BACKGROUND_DRAW_KEY = "background.draw";
+    public static final String TILING_ACTIVE_KEY = "tiling.active";
     public static final String SEED_KEY = "seed";
     public static final String STRAIGHTNESS_KEY = "straightness";
     public static final String DRAW_BORDER_KEY = "tile.border.draw";
@@ -45,8 +57,15 @@ public class TileProperties {
         putObject(NEURON_CONNECTIONS_DRAWING_ALGORITHM_KEY, ParisBlockAlgorithm.PARIS_CITY_BLOCK_ALGORITHM_KEY);
         putObject(NEURON_COLLISION_AVOID_KEY, true);
         putObject(DRAW_BORDER_KEY, false);
-        putObject(SEED_KEY, 42);
+        putObject(SEED_KEY, DEFAULT_SEED);
         putObject(STRAIGHTNESS_KEY, DEFAULT_STRAIGHTNESS);
+        putObject(NEURON_MIN_PIXEL_KEY, DEFAULT_MIN_PIXEL);
+        putObject(NEURON_MAX_PIXEL_KEY, DEFAULT_MAX_PIXEL);
+        putObject(BACKGROUND_DRAW_KEY, true);
+        putObject(BACKGROUND_RED_KEY, 8);
+        putObject(BACKGROUND_GREEN_KEY, 0);
+        putObject(BACKGROUND_BLUE_KEY, 8);
+        putObject(TILING_ACTIVE_KEY, true);
     }
 
     public void putObject(String key, Object value) {
@@ -64,7 +83,7 @@ public class TileProperties {
 
     public void storeTo(File file) throws IOException {
         FileOutputStream outputStream = new FileOutputStream(file);
-        properties.store(outputStream, "properties for the "+Util.PROJECT_NAME+" project.");
+        properties.store(outputStream, "Properties for the "+Util.PROJECT_NAME+" project.");
         outputStream.close();
     }
 
@@ -94,12 +113,6 @@ public class TileProperties {
             throw new IllegalTypeException(key, valueAsString, "boolean");
         }
     }
-
-//    public void putObject(String key, Object value){
-//        keys.remove(key);
-//        keys.add(key);
-//        properties.put(key, value.toString());
-//    }
 
     public LineAlgorithm getLineAlgorithm(String key) throws IllegalTypeException {
         String valueAsString = properties.getProperty(key);
