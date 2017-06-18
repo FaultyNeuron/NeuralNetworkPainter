@@ -23,13 +23,14 @@ public class Tile {
     private boolean avoidTouching;
     private int minPixelSize;
     private int maxPixelSize;
+    private boolean hollowNeurons;
     private static final int MAX_AVOID_TOUCH_ATTEMPTS = 100;
 
 
     public Tile(int width, int height, int neuronCount, long seed, boolean drawBorder,
                 int minConnections, int maxConnections, LineAlgorithm lineAlgorithm,
                 float straightness, boolean avoidTouching, int minPixelSize, int maxPixelSize,
-                Color backgroundColour, boolean tilingActive, boolean antialiasing) {
+                Color backgroundColour, boolean tilingActive, boolean antialiasing, boolean hollowNeurons) {
         this.width = width;
         this.height = height;
         this.drawBorder = drawBorder;
@@ -40,6 +41,7 @@ public class Tile {
         this.avoidTouching = avoidTouching;
         this.minPixelSize = minPixelSize;
         this.maxPixelSize = maxPixelSize;
+        this.hollowNeurons = hollowNeurons;
         neuronsOnStage = new LinkedList<>();
         allNeurons = new LinkedList<>();
         canvas = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -163,7 +165,11 @@ public class Tile {
 
         void paint(){
             canvasGraphics.setColor(getNeuronColor());
-            canvasGraphics.fillOval(getLeft(), getTop(), getPixelSize(), getPixelSize());
+            if (hollowNeurons) {
+                canvasGraphics.drawOval(getLeft(), getTop(), getPixelSize(), getPixelSize());
+            } else {
+                canvasGraphics.fillOval(getLeft(), getTop(), getPixelSize(), getPixelSize());
+            }
         }
 
         public int getLeft() {

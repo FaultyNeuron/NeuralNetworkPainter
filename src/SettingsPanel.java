@@ -74,6 +74,7 @@ public class SettingsPanel extends JPanel {
             addCheckbox("Try to avoid touching neurons", TileProperties.NEURON_COLLISION_AVOID_KEY);
             addCheckbox("Create connected tiles", TileProperties.TILING_ACTIVE_KEY);
             addCheckbox("Use antialiasing", TileProperties.ANTI_ALIASING_KEY);
+            addCheckbox("Draw neurons hollow", TileProperties.NEURON_HOLLOW_KEY);
 
             tilePanel.setTile(tileFactory.create());
         } catch (TileProperties.IllegalTypeException e){

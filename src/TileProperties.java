@@ -28,6 +28,7 @@ public class TileProperties {
     public static final String NEURON_CONNECTIONS_MAX_KEY = "neuron.connections.max";
     public static final String NEURON_CONNECTIONS_DRAWING_ALGORITHM_KEY = "neuron.connections.drawing";
     public static final String NEURON_COLLISION_AVOID_KEY = "neuron.collision.avoid";
+    public static final String NEURON_HOLLOW_KEY = "neuron.hollow";
     public static final String NEURON_MIN_PIXEL_KEY = "neuron.size.min";
     public static final String NEURON_MAX_PIXEL_KEY = "neuron.size.max";
     public static final String BACKGROUND_RED_KEY = "background.red";
@@ -68,6 +69,7 @@ public class TileProperties {
         putObject(BACKGROUND_BLUE_KEY, 8);
         putObject(TILING_ACTIVE_KEY, true);
         putObject(ANTI_ALIASING_KEY, true);
+        putObject(NEURON_HOLLOW_KEY, false);
     }
 
     public void putObject(String key, Object value) {

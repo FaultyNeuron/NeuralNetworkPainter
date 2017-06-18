@@ -14,8 +14,8 @@ public class TileFactory {
         Color backgroundColour = null;
         if (tileProperties.getBoolean(TileProperties.BACKGROUND_DRAW_KEY)) {
             backgroundColour = new Color(tileProperties.getInt(TileProperties.BACKGROUND_RED_KEY),
-                    tileProperties.getInt(TileProperties.BACKGROUND_BLUE_KEY),
-                    tileProperties.getInt(TileProperties.BACKGROUND_GREEN_KEY));
+                    tileProperties.getInt(TileProperties.BACKGROUND_GREEN_KEY),
+                    tileProperties.getInt(TileProperties.BACKGROUND_BLUE_KEY));
         }
         return new Tile(
                 tileProperties.getInt(TileProperties.TILE_WIDTH_KEY),
@@ -32,7 +32,8 @@ public class TileFactory {
                 tileProperties.getInt(TileProperties.NEURON_MAX_PIXEL_KEY),
                 backgroundColour,
                 tileProperties.getBoolean(TileProperties.TILING_ACTIVE_KEY),
-                tileProperties.getBoolean(TileProperties.ANTI_ALIASING_KEY)
+                tileProperties.getBoolean(TileProperties.ANTI_ALIASING_KEY),
+                tileProperties.getBoolean(TileProperties.NEURON_HOLLOW_KEY)
         );
     }
 
